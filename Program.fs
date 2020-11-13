@@ -61,6 +61,8 @@ let decide (cmd: Command) (state: State) : Event list =
     match state, cmd with
     | Off, SwitchOn -> [ SwitchedOn ] // light is Off, it's now SwitchedOn
     | On, SwitchOn -> [] // light is is already On, nothing happens
+    | Off, SwitchOff -> [] // light is already Off, nothing happend
+    | On, SwitchOff -> [ SwitchedOff ] // light is On, it's now SwitchedOff
     | _ -> []
 
 
@@ -70,6 +72,7 @@ let decide (cmd: Command) (state: State) : Event list =
 let evolve (state: State) (event: Event) : State =
     match event with
     | SwitchedOn -> On // when SwitchedOn, new state is On
+    | SwitchedOff -> Off // change state to Off
     | _ -> state // we just return input state
 
 //---------------------
@@ -132,11 +135,14 @@ let ``Switching Off the first time should do nothing`` =
     => SwitchOff
     == [ ]
 
+// the to implement this one and keep the previous test green,
+// we have to check the current state and remember it.
 let ``Switching Off when should switch off `` =
     [ SwitchedOn ]
     => SwitchOff
     == [ SwitchedOff ]
 
+// this one check that everything is still passing
 let ``Switching On after switched Off should switch on `` =
     [ SwitchedOn
       SwitchedOff ]
