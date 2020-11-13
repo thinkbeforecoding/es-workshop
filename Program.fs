@@ -57,8 +57,9 @@ let initialState = InitialState
 // Step 1: 
 // Implement this function with the simplest
 // implementation that compile, but that take no decision
-let decide (cmd: Command) (state: State) : Event list = 
-    [] // this is a working implementation that does nothing
+let decide (cmd: Command) (state: State) : Event list =
+    [ SwitchedOn ] // This is the simplest thing to make Step 4 pass 😁!
+                   // But the next test is not passing 😬
 
 // Step 2:
 // Implement this function with the simplest
@@ -96,6 +97,8 @@ let (==) actual expected =
 // Step 4:
 // Modify the decide function to make this test pass.
 // Tests come from specifications, you should not change them.
+
+// For this we just have to change the decide function
 let ``Switching On should switch on`` =
     []
     => SwitchOn
