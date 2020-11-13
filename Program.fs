@@ -45,10 +45,10 @@ type LightState =
     | Off
 
 // this type represent the current state
-type State = InitialState
+type State = LightState
 
 // this is the value of the initial state
-let initialState = InitialState
+let initialState = Off
 
 //-----------------------
 // Domain Implementation
@@ -58,15 +58,19 @@ let initialState = InitialState
 // Implement this function with the simplest
 // implementation that compile, but that take no decision
 let decide (cmd: Command) (state: State) : Event list =
-    [ SwitchedOn ] // This is the simplest thing to make Step 4 pass 😁!
-                   // But the next test is not passing 😬
+    match state, cmd with
+    | Off, SwitchOn -> [ SwitchedOn ] // light is Off, it's now SwitchedOn
+    | On, SwitchOn -> [] // light is is already On, nothing happens
+    | _ -> []
+
 
 // Step 2:
 // Implement this function with the simplest
 // implementation that compile, but that don't evolve anything
 let evolve (state: State) (event: Event) : State =
-    state // we just return input state
-          // so state always remains the same
+    match event with
+    | SwitchedOn -> On // when SwitchedOn, new state is On
+    | _ -> state // we just return input state
 
 //---------------------
 // Tests on the Domain
@@ -106,6 +110,12 @@ let ``Switching On should switch on`` =
 
 // Step 5:
 // Can you make both tests pass without touching the evolve function ?
+
+// The command is exactly the same as for the previous test.
+// Since decide is pure, the change in the result can only come from its input.
+// So here, state has to be different.
+// We will remember the light state in state, and use it for decision.
+// We will also compute new state in the evolve function.
 let ``Switching On twice should be idempotent`` =
     [ SwitchedOn ]
     => SwitchOn
