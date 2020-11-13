@@ -45,10 +45,11 @@ type LightState =
     | Off
 
 // this type represent the current state
-type State = LightState
+type State = 
+    LightState * int
 
 // this is the value of the initial state
-let initialState = Off
+let initialState = Off, 2
 
 //-----------------------
 // Domain Implementation
@@ -59,10 +60,11 @@ let initialState = Off
 // implementation that compile, but that take no decision
 let decide (cmd: Command) (state: State) : Event list =
     match state, cmd with
-    | Off, SwitchOn -> [ SwitchedOn ] // light is Off, it's now SwitchedOn
-    | On, SwitchOn -> [] // light is is already On, nothing happens
-    | Off, SwitchOff -> [] // light is already Off, nothing happend
-    | On, SwitchOff -> [ SwitchedOff ] // light is On, it's now SwitchedOff
+    | (Off,0), SwitchOn -> [ Broke ] // the remaining count is 0 and we switch on.. it just broke
+    | (Off,_), SwitchOn -> [ SwitchedOn ] // light is Off, it's now SwitchedOn
+    | (On,_), SwitchOn -> [] // light is is already On, nothing happens
+    | (Off,_), SwitchOff -> [] // light is already Off, nothing happend
+    | (On,_), SwitchOff -> [ SwitchedOff ] // light is On, it's now SwitchedOff
     | _ -> []
 
 
@@ -70,9 +72,9 @@ let decide (cmd: Command) (state: State) : Event list =
 // Implement this function with the simplest
 // implementation that compile, but that don't evolve anything
 let evolve (state: State) (event: Event) : State =
-    match event with
-    | SwitchedOn -> On // when SwitchedOn, new state is On
-    | SwitchedOff -> Off // change state to Off
+    match state, event with
+    | (_,remaining), SwitchedOn -> On, remaining - 1 // when SwitchedOn, new state is On
+    | (_,remaining), SwitchedOff -> Off, remaining // change state to Off
     | _ -> state // we just return input state
 
 //---------------------
@@ -154,6 +156,11 @@ let ``Switching On after switched Off should switch on `` =
 // and do nothing afterward.
 // make the remaining 3 tests pass.
 // Notice how changing state should not affect existing tests.
+
+// We need to had the remaining switchon count to the state
+// to be able to take this decision.
+// On each switch on, it will be decreased by 1 in the evolve function.
+
 let ``Switching On the 3rd time should break`` =
     [ SwitchedOn; SwitchedOff
       SwitchedOn; SwitchedOff ]
