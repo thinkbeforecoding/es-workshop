@@ -245,13 +245,45 @@ let execute cmd file =
     appendEvents file newEvents // append new the the end of the file
     printfn "%A" newEvents
 
+
 // Step 9:
 // This is a query. Display the current state 
 // from stored events 
+
+// we create a projection to compute state and number of uses
+
+type QueryState =
+    | IsWorking of LightState * int
+    | IsBroken
+
+let projection state event =
+    match state, event with
+    | IsWorking (_, useCount), SwitchedOn -> IsWorking(On, useCount+1)
+    | IsWorking (_, useCount), SwitchedOff -> IsWorking(Off, useCount)
+    | _, Broke -> IsBroken
+    | _ -> state
+    
+
 let queryState file =
     let events = loadEvents file
+    
+    // we compute the state by folding the projection
+    let state = List.fold projection (IsWorking(Off, 0)) events
 
-    printfn "%A" events
+    // and use the result for display
+    match state with
+    | IsWorking(On, useCount) ->
+        printfn "💡 is On and has been use %d times" useCount
+    | IsWorking(Off, useCount) ->
+        printfn "💡 is Off and has been use %d times" useCount
+    | IsBroken ->
+        printfn "💡 is broken"
+
+// you can now run the program to see it run:
+// dotnet run state light1
+// dotnet run on light1
+// dotnet run off light1
+// etc.
 
 // this is the entry point for command line parsing
 [<EntryPoint>]
