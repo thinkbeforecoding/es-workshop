@@ -45,11 +45,12 @@ type LightState =
     | Off
 
 // this type represent the current state
-type State = 
-    LightState * int
+type State =
+    | Working of LightState * int
+    | Broken
 
 // this is the value of the initial state
-let initialState = Off, 2
+let initialState = Working (Off, 2)
 
 //-----------------------
 // Domain Implementation
@@ -60,12 +61,12 @@ let initialState = Off, 2
 // implementation that compile, but that take no decision
 let decide (cmd: Command) (state: State) : Event list =
     match state, cmd with
-    | (Off,0), SwitchOn -> [ Broke ] // the remaining count is 0 and we switch on.. it just broke
-    | (Off,_), SwitchOn -> [ SwitchedOn ] // light is Off, it's now SwitchedOn
-    | (On,_), SwitchOn -> [] // light is is already On, nothing happens
-    | (Off,_), SwitchOff -> [] // light is already Off, nothing happend
-    | (On,_), SwitchOff -> [ SwitchedOff ] // light is On, it's now SwitchedOff
-    | _ -> []
+    | Working (Off,0), SwitchOn -> [ Broke ] // the remaining count is 0 and we switch on.. it just broke
+    | Working (Off,_), SwitchOn -> [ SwitchedOn ] // light is Off, it's now SwitchedOn
+    | Working (On,_), SwitchOn -> [] // light is is already On, nothing happens
+    | Working (Off,_), SwitchOff -> [] // light is already Off, nothing happend
+    | Working(On,_), SwitchOff -> [ SwitchedOff ] // light is On, it's now SwitchedOff
+    | Broken, _ -> []
 
 
 // Step 2:
@@ -73,8 +74,9 @@ let decide (cmd: Command) (state: State) : Event list =
 // implementation that compile, but that don't evolve anything
 let evolve (state: State) (event: Event) : State =
     match state, event with
-    | (_,remaining), SwitchedOn -> On, remaining - 1 // when SwitchedOn, new state is On
-    | (_,remaining), SwitchedOff -> Off, remaining // change state to Off
+    | Working (_,remaining), SwitchedOn -> Working (On, remaining - 1) // when SwitchedOn, new state is On
+    | Working (_,remaining), SwitchedOff -> Working (Off, remaining) // change state to Off
+    | _, Broke -> Broken
     | _ -> state // we just return input state
 
 //---------------------
@@ -167,6 +169,11 @@ let ``Switching On the 3rd time should break`` =
     => SwitchOn
     == [ Broke ]
 
+// Now, it is clearer to create a Broken state so that nothing
+// happen anymore. For this we change the decide function
+// to do nothing when state is broken. Then we pass in broken state
+// in the evolve function when light broke.
+// All tests should now pass.
 let ``Switching On after broke should do nothing`` =
     [ Broke ]
     => SwitchOn
