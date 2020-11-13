@@ -123,6 +123,10 @@ let ``Switching On twice should be idempotent`` =
 
 // Step 6:
 // Make the next 3 test and the next pass
+
+// This state is actually already passing since we never do anything
+// on the SwitchOff command
+// but it will have to pass when we make changes for the next test.
 let ``Switching Off the first time should do nothing`` =
     [ ]
     => SwitchOff
