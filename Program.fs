@@ -58,7 +58,7 @@ let initialState = InitialState
 // Implement this function with the simplest
 // implementation that compile, but that take no decision
 let decide (cmd: Command) (state: State) : Event list = 
-    failwith "Not implented"
+    [] // this is a working implementation that does nothing
 
 // Step 2:
 // Implement this function with the simplest
