@@ -81,7 +81,10 @@ let evolve (state: State) (event: Event) : State =
 // where agg is the aggregation function and seed the initial value
 
 let (=>) (events: Event list) (cmd: Command) : Event list =
-    failwith "Not implemented"
+    events
+    |> List.fold evolve initialState // this computes the current state
+    |> decide cmd                    // calls decide with state and cmd
+                                     // the result is the list of new events
 
 // this operator is an equality assertion 
 let (==) actual expected =
