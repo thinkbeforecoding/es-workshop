@@ -64,7 +64,8 @@ let decide (cmd: Command) (state: State) : Event list =
 // Implement this function with the simplest
 // implementation that compile, but that don't evolve anything
 let evolve (state: State) (event: Event) : State =
-    failwith "Not implemented"
+    state // we just return input state
+          // so state always remains the same
 
 //---------------------
 // Tests on the Domain
