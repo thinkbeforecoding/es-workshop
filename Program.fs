@@ -237,9 +237,12 @@ let appendEvents filename events =
 // determine new events due to the command,
 // and append them to the end of the file
 let execute cmd file =
-    let events = loadEvents file
-    let newEvents = []
-    appendEvents file newEvents
+    let events = loadEvents file // load all events from file
+    let newEvents =
+        events
+        |> List.fold evolve initialState // compute the current state
+        |> decide cmd // call decide with current state and the command
+    appendEvents file newEvents // append new the the end of the file
     printfn "%A" newEvents
 
 // Step 9:
