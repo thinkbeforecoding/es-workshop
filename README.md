@@ -1,5 +1,7 @@
 # Functional Event Sourcing
 
+This repository has moved to Codeberg: https://codeberg.org/thinkbeforecoding/es-workshop
+
 To run this exercise you'll need
 * a code editor (VS code is recommendanded for F# tooling)
 * .net core sdk 3.1 
